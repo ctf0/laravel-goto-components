@@ -1,63 +1,50 @@
-import { existsSync } from "fs";
+import escapeStringRegexp from 'escape-string-regexp';
 import {
-  DocumentLinkProvider,
-  Hover,
-  MarkdownString,
-  Position,
-  TextDocument,
-  Uri,
-  workspace,
-  ProviderResult,
-  DocumentLink,
-  Range,
-} from "vscode";
-import { nameToIndexPath, nameToPath } from "./utils";
+    DocumentLink,
+    DocumentLinkProvider,
+    ProviderResult,
+    TextDocument,
+    Uri,
+    window,
+    workspace,
+} from 'vscode';
+import * as utils from './utils';
 
 export default class LinkProvider implements DocumentLinkProvider {
-  public provideDocumentLinks(
-    doc: TextDocument
-  ): ProviderResult<DocumentLink[]> {
-    const documentLinks: DocumentLink[] = [];
+    public async provideDocumentLinks(doc: TextDocument): ProviderResult<DocumentLink[]> {
+        const editor = window.activeTextEditor;
+        const documentLinks: DocumentLink[] = [];
 
-    const config = workspace.getConfiguration("laravel_goto_components");
-    const workspacePath = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath;
+        if (editor) {
+            const workspacePath = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath;
 
-    const reg = new RegExp(config.regex);
-    let linesCount = doc.lineCount;
+            const text = doc.getText();
+            const matches = text.matchAll(new RegExp(utils.regex, 'g'));
 
-    let index = 0;
-    while (index < linesCount) {
-      let line = doc.lineAt(index);
-      let result = line.text.match(reg);
+            for (const match of matches) {
+                const componentName = match[0];
+                let componentPath = utils.nameToPath(componentName);
 
-      if (result !== null) {
-        for (let componentName of result) {
-          let componentPath = nameToPath(componentName);
-          
-          if (!existsSync(workspacePath + componentPath)) {
-            componentPath = nameToIndexPath(componentName);
-            
-            if (!existsSync(workspacePath + componentPath)) {
-              continue;
+                if (!await utils.checkForExistence(workspacePath + componentPath)) {
+                    componentPath = utils.nameToIndexPath(componentName);
+
+                    if (!await utils.checkForExistence(workspacePath + componentPath)) {
+                        continue;
+                    }
+                }
+
+                const range: any = doc.getWordRangeAtPosition(
+                    doc.positionAt(match.index + componentName.length),
+                    new RegExp(escapeStringRegexp(componentName)),
+                );
+
+                documentLinks.push(new DocumentLink(
+                    range,
+                    Uri.file(workspacePath + componentPath),
+                ));
             }
-          }
-          
-          let start = new Position(
-            line.lineNumber,
-            line.text.indexOf(componentName)
-          );
-          let end = start.translate(0, componentName.length);
-          let documentlink = new DocumentLink(
-            new Range(start, end),
-            Uri.file(workspacePath + componentPath)
-          );
-          documentLinks.push(documentlink);
         }
-      }
 
-      index++;
+        return documentLinks;
     }
-
-    return documentLinks;
-  }
 }

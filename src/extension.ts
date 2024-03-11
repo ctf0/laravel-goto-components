@@ -1,18 +1,32 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import { ExtensionContext, languages } from "vscode";
-import HoverProvider from "./hoverProvider";
-import LinkProvider from "./linkProvider";
+import debounce from 'lodash.debounce';
+import { languages, window, workspace, type ExtensionContext } from 'vscode';
+import LinkProvider from './linkProvider';
+import * as utils from './utils';
 
+let providers: any = [];
 export function activate(context: ExtensionContext) {
-  let hover = languages.registerHoverProvider("blade", new HoverProvider());
-  let link = languages.registerDocumentLinkProvider(
-    "blade",
-    new LinkProvider()
-  );
+    utils.readConfig();
 
-  context.subscriptions.push(hover, link);
+    // config
+    workspace.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(utils.PACKAGE_NAME)) {
+            utils.readConfig();
+        }
+    });
+
+    initProviders();
+    context.subscriptions.push(
+        window.onDidChangeActiveTextEditor(() => initProviders()),
+    );
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+const initProviders = debounce(() => {
+    providers.push(
+        languages.registerDocumentLinkProvider('blade', new LinkProvider()),
+    );
+}, 250);
+
+export function deactivate() {
+    providers.map((e) => e.dispose());
+    providers = [];
+}
