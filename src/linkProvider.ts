@@ -23,13 +23,17 @@ export default class LinkProvider implements DocumentLinkProvider {
 
             for (const match of matches) {
                 const componentName = match[0];
-                let componentPath = utils.nameToPath(componentName);
+                let componentPath = utils.nameToViewPath(componentName);
 
                 if (!await utils.checkForExistence(workspacePath + componentPath)) {
-                    componentPath = utils.nameToIndexPath(componentName);
+                    componentPath = utils.nameToViewIndexPath(componentName);
 
                     if (!await utils.checkForExistence(workspacePath + componentPath)) {
-                        continue;
+                        componentPath = utils.nameToClassPath(componentName);
+
+                        if (!await utils.checkForExistence(workspacePath + componentPath)) {
+                            continue;
+                        }
                     }
                 }
 

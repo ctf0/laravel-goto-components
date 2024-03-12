@@ -1,12 +1,17 @@
 import { pathExists } from 'fs-extra';
+import pascalcase from 'pascalcase';
 import { workspace, WorkspaceConfiguration } from 'vscode';
 
-export function nameToPath(path: string): string {
-    return `${comp_path}${path.replace(/\./g, '/')}.blade.php`;
+export function nameToViewPath(name: string): string {
+    return `${comp_blade}${name.replace(/\./g, '/')}.blade.php`;
 }
 
-export function nameToIndexPath(path: string): string {
-    return `${comp_path}${path.replace(/\./g, '/')}/index.blade.php`;
+export function nameToViewIndexPath(name: string): string {
+    return `${comp_blade}${name.replace(/\./g, '/')}/index.blade.php`;
+}
+
+export function nameToClassPath(name: string): string {
+    return `${comp_class}${pascalcase(name)}.php`;
 }
 
 export function checkForExistence(path: string): bool {
@@ -18,10 +23,11 @@ export function checkForExistence(path: string): bool {
 export const PACKAGE_NAME = 'laravelGotoComponent';
 export let config: WorkspaceConfiguration;
 export let regex = '';
-export let comp_path = '';
+export let comp_blade = '';
 
 export function readConfig() {
     config = workspace.getConfiguration(PACKAGE_NAME);
     regex = config.regex;
-    comp_path = config.path;
+    comp_blade = config.blade;
+    comp_class = config.class;
 }
