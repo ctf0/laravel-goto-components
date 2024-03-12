@@ -1,9 +1,9 @@
 {
-	"name": "laravel-goto-components-new",
-	"displayName": "Laravel Goto Components (new)",
-	"description": "Quick jump to components",
+	"name": "laravel-goto-component",
+	"displayName": "Laravel Goto Component",
+	"description": "Quick jump to component",
 	"icon": "images/logo.png",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"publisher": "ctf0",
 	"repository": "https://github.com/ctf0/laravel-goto-components.git",
 	"engines": {
@@ -17,23 +17,24 @@
 		"Laravel"
 	],
 	"activationEvents": [
-		"onLanguage:blade"
+		"onLanguage:blade",
+		"onStartupFinished"
 	],
 	"main": "./out/main",
 	"contributes": {
 		"configuration": {
 			"type": "object",
-			"title": "Laravel goto components configuration",
+			"title": "Laravel Goto Component",
 			"properties": {
-				"laravelGotoComponents.regex": {
+				"laravelGotoComponent.regex": {
 					"type": "string",
 					"default": "(?<=(<x-|</x-))(?!slot)[a-z.-]+",
-					"description": "Custom regex for matching strings"
+					"description": "regex for matching component names"
 				},
-				"laravelGotoComponents.path": {
+				"laravelGotoComponent.path": {
 					"type": "string",
 					"default": "/resources/views/components/",
-					"description": "components path"
+					"description": "default components path"
 				}
 			}
 		}

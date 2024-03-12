@@ -15,7 +15,7 @@ export function checkForExistence(path: string): bool {
 
 // ======================================================
 
-export const PACKAGE_NAME = 'laravelGotoComponents';
+export const PACKAGE_NAME = 'laravelGotoComponent';
 export let config: WorkspaceConfiguration;
 export let regex = '';
 export let comp_path = '';
