@@ -1,32 +1,54 @@
 import debounce from 'lodash.debounce';
-import { languages, window, workspace, type ExtensionContext } from 'vscode';
-import LinkProvider from './linkProvider';
+import * as vscode from 'vscode';
+import * as cmnds from './cmnds';
+import LensProvider from './providers/LensProvider';
+import LinkProvider from './providers/LinkProvider';
 import * as utils from './utils';
 
 let providers: any = [];
-export function activate(context: ExtensionContext) {
+export function activate(context: vscode.ExtensionContext) {
     utils.readConfig();
 
     // config
-    workspace.onDidChangeConfiguration((e) => {
+    vscode.workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration(utils.PACKAGE_NAME)) {
             utils.readConfig();
         }
     });
 
+    // command
+    context.subscriptions.push(
+        vscode.commands.registerCommand('lgtc.copyPath', cmnds.copyPath),
+    );
+
+    // links
     initProviders();
     context.subscriptions.push(
-        window.onDidChangeActiveTextEditor(() => initProviders()),
+        vscode.window.onDidChangeActiveTextEditor(async (e) => {
+            await clearAll();
+            initProviders();
+        }),
     );
 }
 
 const initProviders = debounce(() => {
     providers.push(
-        languages.registerDocumentLinkProvider('blade', new LinkProvider()),
+        vscode.languages.registerDocumentLinkProvider(['blade'], new LinkProvider()),
     );
+
+    if (utils.config.showCodeLens) {
+        providers.push(vscode.languages.registerCodeLensProvider(['blade'], new LensProvider()));
+    }
 }, 250);
 
+function clearAll() {
+    return new Promise((res, rej) => {
+        providers.map((e) => e.dispose());
+        providers = [];
+
+        setTimeout(() => res(true), 500);
+    });
+}
 export function deactivate() {
-    providers.map((e) => e.dispose());
-    providers = [];
+    clearAll();
 }

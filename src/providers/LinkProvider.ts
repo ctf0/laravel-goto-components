@@ -1,22 +1,14 @@
 import escapeStringRegexp from 'escape-string-regexp';
-import {
-    DocumentLink,
-    DocumentLinkProvider,
-    ProviderResult,
-    TextDocument,
-    Uri,
-    window,
-    workspace,
-} from 'vscode';
-import * as utils from './utils';
+import * as vscode from 'vscode';
+import * as utils from '../utils';
 
-export default class LinkProvider implements DocumentLinkProvider {
-    public async provideDocumentLinks(doc: TextDocument): ProviderResult<DocumentLink[]> {
-        const editor = window.activeTextEditor;
-        const documentLinks: DocumentLink[] = [];
+export default class LinkProvider implements vscode.DocumentLinkProvider {
+    public async provideDocumentLinks(doc: vscode.TextDocument): vscode.ProviderResult<vscode.DocumentLink[]> {
+        const editor = vscode.window.activeTextEditor;
+        const documentLinks: vscode.DocumentLink[] = [];
 
         if (editor) {
-            const workspacePath = workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath;
+            const workspacePath = vscode.workspace.getWorkspaceFolder(doc.uri)?.uri.fsPath;
 
             const text = doc.getText();
             const matches = text.matchAll(new RegExp(utils.regex, 'g'));
@@ -42,10 +34,13 @@ export default class LinkProvider implements DocumentLinkProvider {
                     new RegExp(escapeStringRegexp(componentName)),
                 );
 
-                documentLinks.push(new DocumentLink(
+                const link = new vscode.DocumentLink(
                     range,
-                    Uri.file(workspacePath + componentPath),
-                ));
+                    vscode.Uri.file(workspacePath + componentPath),
+                );
+                link.tooltip = componentPath;
+
+                documentLinks.push(link);
             }
         }
 

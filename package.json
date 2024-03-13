@@ -3,7 +3,7 @@
     "displayName": "Laravel Goto Component",
     "description": "Quick jump to component",
     "icon": "images/logo.png",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/laravel-goto-components.git",
     "engines": {
@@ -22,6 +22,20 @@
     ],
     "main": "./out/main",
     "contributes": {
+        "commands": [
+            {
+                "command": "lgtc.copyPath",
+                "title": "Laravel Goto Component: Copy Component Path"
+            }
+        ],
+        "menus": {
+            "commandPalette": [
+                {
+                    "command": "lgtc.copyPath",
+                    "when": "editorLangId == blade"
+                }
+            ]
+        },
         "configuration": {
             "type": "object",
             "title": "Laravel Goto Component",
@@ -40,6 +54,11 @@
                     "type": "string",
                     "default": "/app/View/Components/",
                     "description": "default components classes path"
+                },
+                "laravelGotoComponent.showCodeLens": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "show/hide copy component file path code lens"
                 }
             }
         }
