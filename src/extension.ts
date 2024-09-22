@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 const initProviders = debounce(() => {
     providers.push(
-        vscode.languages.registerDocumentLinkProvider(['blade, php'], new LinkProvider()),
+        vscode.languages.registerDocumentLinkProvider(['blade', 'php'], new LinkProvider()),
     );
 
     if (utils.config.showCodeLens) {

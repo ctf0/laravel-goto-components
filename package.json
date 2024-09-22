@@ -3,7 +3,7 @@
     "displayName": "Laravel Goto Component",
     "description": "Quick jump to component",
     "icon": "images/logo.png",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "publisher": "ctf0",
     "repository": "https://github.com/ctf0/laravel-goto-components.git",
     "engines": {
